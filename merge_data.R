@@ -1,6 +1,7 @@
 library(readr)
 library(dplyr)
 library(texreg)
+library(fixest)
 setwd("C:/Users/whatt/Desktop/2024_ResAss_UZHIPZ_WeidmannDonnay")
 
 
@@ -58,5 +59,5 @@ joined_data <- joined_data[!duplicated(joined_data), ]
 joined_data$prop_global <- joined_data$post_count_global / joined_data$post_count
 
 # Linear regression w/ fixed effects for country and year
-model1 <- lm(prop_global ~ `Regional autonomy` + `Separatism/irredentism` + as.factor(country_gwid) + as.factor(year), data = joined_data)
-summary(model1)
+model1 <- feols(prop_global ~ `Regional autonomy` + `Separatism/irredentism` | country_gwid + year, data = joined_data)
+model1
