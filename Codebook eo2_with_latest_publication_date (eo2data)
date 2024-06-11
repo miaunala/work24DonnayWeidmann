@@ -1,0 +1,15 @@
+org_id: Organisation ID
+gwid: Gleditsch-Ward country ID
+orgname: Name of organisation
+URL: Full URL to an official organisational channel
+primary: Channel is the primary channel of the organization for the platform, yes or no.
+channel_type: Platform (`facebook`, `twitter`, `web`, `instagram`)
+confidence: Estimate of authenticity of channel, 1 (low confidence) - 5 (high confidence)
+coding_date: Date of search for channel following the format dd-mm-yyyy
+comment: Additional noteworthy information
+fb_clean: Facebook account name
+tw_clean: Twitter account name
+insta_clear: Instagram account name
+clean_username
+latest_publication_date: Latest publication of organisation
+month_recorded_latest_publication
