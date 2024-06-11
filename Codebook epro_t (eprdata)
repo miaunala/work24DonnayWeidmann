@@ -1,0 +1,31 @@
+gwid: Gleditsch-Ward country ids
+groupid : EPR 2017 groupid
+temporary_group_link
+orgname: Name of organisation
+year: Year of the information on the organisation
+time: 
+Phase
+Ethnic claim: Dummy variable whether an organisation has an ethnical claim
+Ethnic electoral support
+Ethnic recruitment
+Founding year: Founding year of the organisation
+Dissolution year: Year of dissolution of the organisation (if applicable)
+Governmental power
+Regional autonomy
+Separatism/irredentism
+Economic redistribution
+Religious rights
+Linguistic rights
+Other goals
+Electoral participation
+Non-electoral, non-violent strategies
+Violence against government
+Violence against civilians
+Other mobilization strategies
+Sources
+Comments
+Confidence
+country_name
+epr_o_2.0
+org_id: Organisation ID
+
