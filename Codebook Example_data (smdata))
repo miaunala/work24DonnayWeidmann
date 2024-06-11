@@ -1,0 +1,18 @@
+index_n
+text: Text of the post
+time: Time of post publication on platform
+channel_type: Platform on which post has been posted
+accountname
+epr_groupid: EPR 2017 groupid (?)
+country_gwid: Gleditsch-Ward country index (?)
+language_pred
+index_chr
+countryname: Name of the country
+length
+ind
+global_max
+probs_global
+country_max
+probs_country
+global: Dummy indicator if post is global or not
+year: Year of the post
