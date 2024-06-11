@@ -52,6 +52,3 @@ joined_data <- joined_data[!duplicated(joined_data), ]
 # Proportion of global posts in total posts
 joined_data$prop_global <- joined_data$post_count_global / joined_data$post_count
 
-# Linear regression w/ fixed effects for country and year
-model1 <- feols(prop_global ~ `Regional autonomy` + `Separatism/irredentism` | country_gwid + year, data = joined_data)
-model1
