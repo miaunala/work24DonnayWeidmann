@@ -5,36 +5,30 @@ library(fixest)
 setwd("C:/Users/whatt/Desktop/2024_ResAss_UZHIPZ_WeidmannDonnay")
 
 
-# This is the original dataset where topic models and translations were run (without all additional columns)
-#org_eo2_sample <- read_csv("data/data_sample_eo2_tw_fb_all.csv.gz")
-
-# this is the original dataset with all additional columns
-#org_eo2_original <- read_csv("data/data_sample_eo2_tw_fb_all_original_data.csv.gz")
-
 # Read in data, create necessary variables, delete NAs and duplicates
 
-# example_data
-example_data <- read_csv("example_data.csv")
-example_data$year <- as.numeric(substr(example_data$time, 7, 10))
-example_data <- example_data %>% filter_at(vars(year, epr_groupid, country_gwid, accountname), all_vars(!is.na(.)))
-example_data <- example_data %>% filter(!duplicated(select(., index_n)))
-#Alternative version: example_data <- example_data[!duplicated(example_data), ]
+# smdata
+smdata <- read_csv("smdata.csv")
+smdata$year <- as.numeric(substr(smdata$time, 7, 10))
+smdata <- smdata %>% filter_at(vars(year, epr_groupid, country_gwid, accountname), all_vars(!is.na(.)))
+smdata <- smdata %>% filter(!duplicated(select(., index_n)))
+#Alternative version: smdata <- smdata[!duplicated(smdata), ]
 
-# epro_t
-epro_t<- read_csv("epro_t.csv")
-epro_t <- epro_t[!is.na(epro_t$orgname), ]
-epro_t <- epro_t[!duplicated(epro_t), ]
+# eprdata
+eprdata<- read_csv("eprdata.csv")
+eprdata <- eprdata[!is.na(eprdata$orgname), ]
+eprdata <- eprdata[!duplicated(eprdata), ]
 
-# gesis_eo
-gesis_eo <- read_csv("eo2_with_latest_publication_date.csv")
-gesis_eo <- gesis_eo[!is.na(gesis_eo$orgname), ]
-gesis_eo <- gesis_eo %>% filter(!duplicated(select(., org_id, clean_username, channel_type)))
-#gesis_eo <- gesis_eo[!duplicated(gesis_eo), ]
+# eo2data
+eo2data <- read_csv("eo2_with_latest_publication_date.csv")
+eo2data <- eo2data[!is.na(eo2data$orgname), ]
+eo2data <- eo2data %>% filter(!duplicated(select(., org_id, clean_username, channel_type)))
+#eo2data <- eo2data[!duplicated(eo2data), ]
 
 
 
-# Grouping for example_data for posts & global posts
-example_data <- example_data %>%
+# Grouping for smdata for posts & global posts
+smdata <- smdata %>%
   group_by(epr_groupid, year, country_gwid, accountname) %>%
   summarise(
     post_count = n(),
@@ -42,16 +36,16 @@ example_data <- example_data %>%
     .groups = "keep"
   ) %>%
   arrange(epr_groupid, year, country_gwid, accountname)
-example_data <- example_data[!duplicated(example_data), ]
+smdata <- smdata[!duplicated(smdata), ]
 
-# Join example_data & gesis_eo
-joined_data <- example_data %>%
-  left_join(select(gesis_eo, org_id, orgname, fb_clean, gwid), by = c("accountname" = "fb_clean", "country_gwid" = "gwid"))
+# Join smdata & eo2data
+joined_data <- smdata %>%
+  left_join(select(eo2data, org_id, orgname, fb_clean, gwid), by = c("accountname" = "fb_clean", "country_gwid" = "gwid"))
 joined_data <- joined_data[!duplicated(joined_data), ]
 
-# Join example_data & epro_t
+# Join smdata & eprdata
 joined_data <- joined_data %>%
-  left_join(select(epro_t, "Governmental power", "Regional autonomy", "Separatism/irredentism", "org_id", "year", "gwid"), by = c("org_id","year", "country_gwid"="gwid"))
+  left_join(select(eprdata, "Governmental power", "Regional autonomy", "Separatism/irredentism", "org_id", "year", "gwid"), by = c("org_id","year", "country_gwid"="gwid"))
 joined_data <- joined_data[!duplicated(joined_data), ]
  
 
