@@ -43,4 +43,42 @@ global_year_region <- ggplot(data = joined_data, mapping = aes(x = year, y = pos
 global_year_region
 
 
+# Welche Organisationen verwenden mehr globale Posts? Hier würde ich einfach nach “governmental power”, “regional autonomy” und “separatism” unterscheiden.
+# Calculate the average share of global posts for each organisation according to the variables
+summary_data <- joined_data %>%
+  group_by(`Governmental power`, `Regional autonomy`, `Separatism/irredentism`, orgname) %>%
+  summarise(
+    avg_prop_global = mean(prop_global, na.rm = TRUE),
+    .groups = "drop"
+  )
+summary_data <- summary_data %>%
+  filter(!is.na(`Governmental power`), !is.na(avg_prop_global))
+
+# Boxplot für den Anteil globaler Posts nach "Governmental power"
+ggplot(summary_data, aes(x = `Governmental power`, y = avg_prop_global)) +
+  geom_boxplot() +
+  labs(title = "Average Proportion of Global Posts by Governmental Power",
+       x = "Governmental Power",
+       y = "Average Proportion of Global Posts") +
+  theme_minimal()
+
+# Boxplot für den Anteil globaler Posts nach "Regional autonomy"
+ggplot(summary_data, aes(x = `Regional autonomy`, y = avg_prop_global)) +
+  geom_boxplot() +
+  labs(title = "Average Proportion of Global Posts by Regional Autonomy",
+       x = "Regional Autonomy",
+       y = "Average Proportion of Global Posts") +
+  theme_minimal()
+
+# Boxplot für den Anteil globaler Posts nach "Separatism/irredentism"
+ggplot(summary_data, aes(x = `Separatism/irredentism`, y = avg_prop_global)) +
+  geom_boxplot() +
+  labs(title = "Average Proportion of Global Posts by Separatism/Irredentism",
+       x = "Separatism/Irredentism",
+       y = "Average Proportion of Global Posts") +
+  theme_minimal()
+
+
+
+
 
