@@ -18,12 +18,16 @@ smdata <- smdata %>% filter(!duplicated(select(., index_n)))
 eprdata<- read_csv("eprdata.csv")
 eprdata <- eprdata[!is.na(eprdata$orgname), ]
 eprdata <- eprdata[!duplicated(eprdata), ]
+# only keep needed variables
+eprdata <- eprdata[, c("Governmental power", "Regional autonomy", "Separatism/irredentism", "org_id", "year", "gwid", "groupid")]
 
 # eo2data
 eo2data <- read_csv("eo2_with_latest_publication_date.csv")
 eo2data <- eo2data[!is.na(eo2data$orgname), ]
 eo2data <- eo2data %>% filter(!duplicated(select(., org_id, clean_username, channel_type)))
 #eo2data <- eo2data[!duplicated(eo2data), ]
+# only keep needed variables
+eo2data <- eo2data[, c("org_id", "orgname", "fb_clean", "gwid")]
 
 
 
@@ -36,17 +40,20 @@ smdata <- smdata %>%
     .groups = "keep"
   ) %>%
   arrange(epr_groupid, year, country_gwid, accountname)
-smdata <- smdata[!duplicated(smdata), ]
+# danger: 
+# smdata <- smdata[!duplicated(smdata), ]
 
 # Join smdata & eo2data
 joined_data <- smdata %>%
   left_join(select(eo2data, org_id, orgname, fb_clean, gwid), by = c("accountname" = "fb_clean", "country_gwid" = "gwid"))
-joined_data <- joined_data[!duplicated(joined_data), ]
+# danger: 
+# joined_data <- joined_data[!duplicated(joined_data), ]
 
 # Join smdata & eprdata
 joined_data <- joined_data %>%
-  left_join(select(eprdata, "Governmental power", "Regional autonomy", "Separatism/irredentism", "org_id", "year", "gwid"), by = c("org_id","year", "country_gwid"="gwid"))
-joined_data <- joined_data[!duplicated(joined_data), ]
+  left_join(select(eprdata, "Governmental power", "Regional autonomy", "Separatism/irredentism", "org_id", "year", "gwid", "groupid"), by = c("org_id","year", "country_gwid"="gwid", "epr_groupid"="groupid"))
+# danger: 
+# joined_data <- joined_data[!duplicated(joined_data), ]
  
 
 # Proportion of global posts in total posts
