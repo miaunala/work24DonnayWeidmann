@@ -12,7 +12,7 @@ smdata <- read_csv("smdata.csv")
 smdata$year <- as.numeric(substr(smdata$time, 7, 10))
 smdata <- smdata %>% filter_at(vars(year, epr_groupid, country_gwid, accountname), all_vars(!is.na(.)))
 smdata <- smdata %>% filter(!duplicated(select(., index_n)))
-#Alternative version: smdata <- smdata[!duplicated(smdata), ]
+
 
 # eprdata
 eprdata<- read_csv("eprdata.csv")
@@ -40,20 +40,16 @@ smdata <- smdata %>%
     .groups = "keep"
   ) %>%
   arrange(epr_groupid, year, country_gwid, accountname)
-# danger: 
-# smdata <- smdata[!duplicated(smdata), ]
 
 # Join smdata & eo2data
 joined_data <- smdata %>%
   left_join(select(eo2data, org_id, orgname, fb_clean, gwid), by = c("accountname" = "fb_clean", "country_gwid" = "gwid"))
-# danger: 
-# joined_data <- joined_data[!duplicated(joined_data), ]
+
 
 # Join smdata & eprdata
 joined_data <- joined_data %>%
   left_join(select(eprdata, "Governmental power", "Regional autonomy", "Separatism/irredentism", "org_id", "year", "gwid", "groupid"), by = c("org_id","year", "country_gwid"="gwid", "epr_groupid"="groupid"))
-# danger: 
-# joined_data <- joined_data[!duplicated(joined_data), ]
+
  
 
 # Proportion of global posts in total posts
