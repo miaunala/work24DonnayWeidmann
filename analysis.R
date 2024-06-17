@@ -79,6 +79,67 @@ ggplot(summary_data, aes(x = `Separatism/irredentism`, y = avg_prop_global)) +
   theme_minimal()
 
 
+# Mean over time 
+
+# Group by year and Governmental power
+gov_power_yearly <- joined_data %>%
+  group_by(year, `Governmental power`) %>%
+  summarise(
+    avg_prop_global = mean(prop_global, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Group by year and Regional autonomy
+reg_autonomy_yearly <- joined_data %>%
+  group_by(year, `Regional autonomy`) %>%
+  summarise(
+    avg_prop_global = mean(prop_global, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Group by year and Separatism/irredentism
+sep_irredentism_yearly <- joined_data %>%
+  group_by(year, `Separatism/irredentism`) %>%
+  summarise(
+    avg_prop_global = mean(prop_global, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+
+ggplot(gov_power_yearly, aes(x = year, y = avg_prop_global, color = as.factor(`Governmental power`), group = `Governmental power`)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Average Proportion of Global Posts by Governmental Power Over Time",
+       x = "Year",
+       y = "Average Proportion of Global Posts",
+       color = "Governmental Power") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+ggplot(reg_autonomy_yearly, aes(x = year, y = avg_prop_global, color = as.factor(`Regional autonomy`), group = `Regional autonomy`)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Average Proportion of Global Posts by Regional Autonomy Over Time",
+       x = "Year",
+       y = "Average Proportion of Global Posts",
+       color = "Regional Autonomy") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+ggplot(sep_irredentism_yearly, aes(x = year, y = avg_prop_global, color = as.factor(`Separatism/irredentism`), group = `Separatism/irredentism`)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Average Proportion of Global Posts by Separatism/Irredentism Over Time",
+       x = "Year",
+       y = "Average Proportion of Global Posts",
+       color = "Separatism/Irredentism") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
 
 
 
