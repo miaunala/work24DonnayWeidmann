@@ -7,7 +7,7 @@ model1 <- felm(prop_global ~ `Regional autonomy` + `Separatism/irredentism` | co
 summary(model1)
 
 # Descriptive Analysis of global posts over years
-global_year <- ggplot(data = joined_data, mapping = aes(x = year, y = post_count_global)) +
+global_year <- ggplot(data = joined_data, mapping = aes(x = year, y = global_posts)) +
   geom_bar(stat = "identity") +
   labs(title = "Number of Global Posts by Year",
        x = "Year",
@@ -31,7 +31,7 @@ for (i in 1:nrow(joined_data)) {
 # Descriptive Analysis of global posts over years and regions
 joined_data$year <- as.factor(joined_data$year)
 
-global_year_region <- ggplot(data = joined_data, mapping = aes(x = year, y = post_count_global, fill = region)) +
+global_year_region <- ggplot(data = joined_data, mapping = aes(x = year, y = global_posts, fill = region)) +
   geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.7) +
   labs(title = "Number of Global Posts by Year and Region",
        x = "Year",
