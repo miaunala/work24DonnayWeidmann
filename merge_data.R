@@ -36,7 +36,7 @@ smdata <- smdata %>%
   group_by(epr_groupid, year, country_gwid, accountname) %>%
   summarise(
     post_count = n(),
-    post_count_global = sum(global ==1),
+    global_posts = sum(global ==1),
     .groups = "keep"
   ) %>%
   arrange(epr_groupid, year, country_gwid, accountname)
@@ -53,5 +53,5 @@ joined_data <- joined_data %>%
  
 
 # Proportion of global posts in total posts
-joined_data$prop_global <- joined_data$post_count_global / joined_data$post_count
+joined_data$prop_global <- joined_data$global_posts / joined_data$post_count
 
