@@ -2,9 +2,33 @@ library("lfe")
 library("ggplot2")
 library("countrycode")
 
+# Create weight with post count
+joined_data$weight_p =joined_data$post_count
+
+# Create time lags for potential later time series analysis
+# Governmental power, Regional autonomy, Separatism/irridentism
+joined_data <- joined_data %>%
+  group_by(org_id) %>%
+  mutate(`Governmental power lag` = lag(`Governmental power`, order_by = year)) %>%
+  mutate(`Regional autonomy lag` = lag(`Regional autonomy`, order_by = year)) %>%
+  mutate(`Separatism/irredentism lag` = lag(`Separatism/irredentism`, order_by = year)) %>%
+  ungroup()
+
+
 # Fixed effects model for countries and years with clustered standard errors
-model1 <- felm(prop_global ~ `Regional autonomy` + `Separatism/irredentism` | country_gwid + year|0|country_gwid + year, data = joined_data)
+model1 <- felm(prop_global ~ `Governmental power` + `Regional autonomy` + `Separatism/irredentism` | country_gwid + year|0|country_gwid + year, data = joined_data)
 summary(model1)
+
+# same but with weights 
+model1_weighted <- felm(prop_global ~ `Governmental power` +`Regional autonomy` + `Separatism/irredentism` | country_gwid + year|0|country_gwid + year, data = joined_data, weights= joined_data$weight_p)
+summary(model1_weighted)
+
+# Log-transformed model
+joined_data$log_post_count <- log(joined_data$post_count + 1)  # Adding 1 to avoid log(0)
+# Extended regression model including log-transformed post count
+extended_model <- felm(prop_global ~ `Governmental power` + `Regional autonomy` + `Separatism/irredentism` + log_post_count | country_gwid + year | 0 | country_gwid + year, data = joined_data,weights= joined_data$weight_p )
+summary(extended_model)
+
 
 # Descriptive Analysis of global posts over years
 global_year <- ggplot(data = joined_data, mapping = aes(x = year, y = global_posts)) +
@@ -41,6 +65,16 @@ global_year_region <- ggplot(data = joined_data, mapping = aes(x = year, y = glo
   theme(legend.position = "bottom",
         axis.text.x = element_text(angle = 45, hjust = 1))
 global_year_region
+
+
+# Fixed effects model for regions and years with clustered standard errors
+model_regions <- felm(prop_global ~ `Governmental power` + `Regional autonomy` + `Separatism/irredentism` | region + year|0|region + year, data = joined_data)
+summary(model_regions)
+
+# Same but with weights 
+model_regions_weighted <- felm(prop_global ~ `Governmental power` +`Regional autonomy` + `Separatism/irredentism` | region + year|0|region + year, data = joined_data, weights= joined_data$weight_p)
+summary(model_regions_weighted)
+
 
 
 # Welche Organisationen verwenden mehr globale Posts? Hier würde ich einfach nach “governmental power”, “regional autonomy” und “separatism” unterscheiden.
