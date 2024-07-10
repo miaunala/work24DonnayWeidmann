@@ -8,7 +8,7 @@ setwd("C:/Users/whatt/Desktop/2024_ResAss_UZHIPZ_WeidmannDonnay")
 # Read in data, create necessary variables, delete NAs and duplicates
 
 # smdata
-smdata <- read_csv("smdata.csv")
+smdata <- read_csv("example_data.csv")
 smdata$year <- as.numeric(substr(smdata$time, 7, 10))
 smdata <- smdata %>% filter_at(vars(year, epr_groupid, country_gwid, accountname), all_vars(!is.na(.)))
 smdata <- smdata %>% filter(!duplicated(select(., index_n)))
@@ -54,4 +54,6 @@ joined_data <- joined_data %>%
 
 # Proportion of global posts in total posts
 joined_data$prop_global <- joined_data$global_posts / joined_data$post_count
+
+
 
