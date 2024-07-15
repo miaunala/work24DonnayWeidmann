@@ -15,7 +15,7 @@ smdata <- smdata %>% filter(!duplicated(select(., index_n)))
 
 
 # eprdata
-eprdata<- read_csv("eprdata.csv")
+eprdata<- read_csv("epro_t.csv")
 eprdata <- eprdata[!is.na(eprdata$orgname), ]
 eprdata <- eprdata[!duplicated(eprdata), ]
 # only keep needed variables

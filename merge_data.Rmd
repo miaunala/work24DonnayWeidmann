@@ -1,0 +1,84 @@
+---
+title: "Data Pipeline"
+author: "Nathalie Guibert"
+date: "2024-07-10"
+output: html_document
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(dplyr)
+library(texreg)
+library(fixest)
+setwd("C:/Users/whatt/Desktop/2024_ResAss_UZHIPZ_WeidmannDonnay/work24DonnayWeidmann")
+```
+
+# Data Preparation / Pipeline
+
+## Read in data, create necessary variables, delete NAs and duplicates
+### smdata - Social Media data
+```{r}
+smdata <- read_csv("data/example_data.csv")
+smdata$year <- as.numeric(substr(smdata$time, 7, 10))
+smdata <- smdata %>% filter_at(vars(year, epr_groupid, country_gwid, accountname), all_vars(!is.na(.)))
+smdata <- smdata %>% filter(!duplicated(select(., index_n)))
+```
+
+
+### eprdata - EPR data
+```{r}
+eprdata<- read_csv("data/epro_t.csv")
+eprdata <- eprdata[!is.na(eprdata$orgname), ]
+eprdata <- eprdata[!duplicated(eprdata), ]
+# only keep needed variables
+eprdata <- eprdata[, c("Governmental power", "Regional autonomy", "Separatism/irredentism", "org_id", "year", "gwid", "groupid")]
+```
+
+
+### eo2data - EO2 data
+```{r}
+eo2data <- read_csv("data/eo2_with_latest_publication_date.csv")
+eo2data <- eo2data[!is.na(eo2data$orgname), ]
+eo2data <- eo2data %>% filter(!duplicated(select(., org_id, clean_username, channel_type)))
+#eo2data <- eo2data[!duplicated(eo2data), ]
+# only keep needed variables
+eo2data <- eo2data[, c("org_id", "orgname", "fb_clean", "gwid")]
+```
+
+
+### Grouping for smdata for posts & global posts
+```{r}
+smdata <- smdata %>%
+  group_by(epr_groupid, year, country_gwid, accountname) %>%
+  summarise(
+    post_count = n(),
+    global_posts = sum(global ==1),
+    .groups = "keep"
+  ) %>%
+  arrange(epr_groupid, year, country_gwid, accountname)
+```
+
+
+### Join smdata & eo2data
+Notiz: hier auch schon als CSV ausgeben?
+```{r}
+joined_data <- smdata %>%
+  left_join(select(eo2data, org_id, orgname, fb_clean, gwid), by = c("accountname" = "fb_clean", "country_gwid" = "gwid"))
+```
+
+
+### Join smdata & eprdata
+```{r}
+joined_data <- joined_data %>%
+  left_join(select(eprdata, "Governmental power", "Regional autonomy", "Separatism/irredentism", "org_id", "year", "gwid", "groupid"), by = c("org_id","year", "country_gwid"="gwid", "epr_groupid"="groupid"))
+```
+
+
+### Proportion of global posts in total posts
+``` {r}
+joined_data$prop_global <- joined_data$global_posts / joined_data$post_count
+write_csv(x = joined_data, "data/joined_data.csv")
+```
+kd
+

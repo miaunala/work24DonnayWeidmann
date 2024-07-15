@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+data/eo2_with_latest_publication_date.csv
+data/epro_t.csv
+data/example_data.csv
+data/joined_data.csv
+data/powacc_conflict.csv
