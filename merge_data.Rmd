@@ -31,8 +31,15 @@ smdata <- smdata %>% filter(!duplicated(select(., index_n)))
 eprdata<- read_csv("data/epro_t.csv")
 eprdata <- eprdata[!is.na(eprdata$orgname), ]
 eprdata <- eprdata[!duplicated(eprdata), ]
+# rename complicated variables
+eprdata <- eprdata %>%
+  rename(gov_pow = `Governmental power`) %>%
+  rename(reg_autonom = `Regional autonomy`) %>%
+  rename(sep_irred = `Separatism/irredentism`)
+
+
 # only keep needed variables
-eprdata <- eprdata[, c("Governmental power", "Regional autonomy", "Separatism/irredentism", "org_id", "year", "gwid", "groupid")]
+eprdata <- eprdata[, c("gov_pow", "reg_autonom", "sep_irred", "org_id", "year", "gwid", "groupid")]
 ```
 
 
@@ -71,7 +78,7 @@ joined_data <- smdata %>%
 ### Join smdata & eprdata
 ```{r}
 joined_data <- joined_data %>%
-  left_join(select(eprdata, "Governmental power", "Regional autonomy", "Separatism/irredentism", "org_id", "year", "gwid", "groupid"), by = c("org_id","year", "country_gwid"="gwid", "epr_groupid"="groupid"))
+  left_join(select(eprdata, "gov_pow", "reg_autonom", "sep_irred", "org_id", "year", "gwid", "groupid"), by = c("org_id","year", "country_gwid"="gwid", "epr_groupid"="groupid"))
 ```
 
 
@@ -80,5 +87,5 @@ joined_data <- joined_data %>%
 joined_data$prop_global <- joined_data$global_posts / joined_data$post_count
 write_csv(x = joined_data, "data/joined_data.csv")
 ```
-kd
+
 
