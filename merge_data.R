@@ -1,3 +1,7 @@
+# Merge Data R file (for batch system)
+
+# Setup(same for both versions)
+
 library(readr)
 library(dplyr)
 library(texreg)
@@ -5,8 +9,48 @@ library(fixest)
 
 # for VM
 #setwd("/data/nguibe")
+# for Nathalie's use
 #setwd("C:/Users/whatt/Desktop/2024_ResAss_UZHIPZ_WeidmannDonnay")
 
+
+# V1 - Current version (Join between Social Media data and eo2 data)
+
+# Data Preparation / Pipeline
+
+# Social Media data
+
+# Reading in the Social Media data, extracting the year as own variable, removing
+# observations, which are NAs (in certain variables), removing duplicates 
+# based on the index and keeping only needed variables.
+smdata <- read_csv("data/example_data.csv")
+smdata$year <- as.numeric(substr(smdata$time, 7, 10))
+smdata <- smdata %>% filter_at(vars(year, epr_groupid, country_gwid, accountname), all_vars(!is.na(.)))
+smdata <- smdata %>% filter(!duplicated(select(., index_n)))
+smdata <- smdata[, c("index_n", "global_max", "probs_global", "country_max", "probs_country", "global")]
+
+
+# EO2 data
+
+# Reading in the eo2 data and removing NAs (based on missings within the col
+# orgname)
+eo2data <- read_csv("data/data_sample_eo2_tw_fb_all_original_data.csv.gz")
+eo2data <- eo2data[!is.na(eo2data$orgname),]
+
+
+# Joins
+
+# Left-join of Social Media data and eo2 data based on the index.
+joined_data <- smdata %>% left_join(eo2data, by = ("index_n"="index_n"))
+
+
+# Saving joined data as CSV
+write_csv(x = joined_data, "data/joined_data.csv")
+
+
+
+
+
+# V2 - Previous elaborate version
 
 # Read in data, create necessary variables, delete NAs and duplicates
 
@@ -37,7 +81,7 @@ eo2data <- read_csv("data/data_sample_eo2_tw_fb_all_original_data.csv.gz")
 # delete missings
 eo2data <- eo2data[!is.na(eo2data$orgname),]
 # only keep needed variables
-eo2data <- eo2data[, c("org_id_from_coll", "orgname", "accountname", "gwid.x", "groupid", "year")]
+eo2data <- eo2data[, c("org_id_from_coll", "orgname", "accountname", "gwid.x", "groupid", "year", "index_n")]
 
 # power access & conflict data
 powacc_confdata <- read_csv("data/powacc_conflict.csv")
@@ -46,15 +90,15 @@ powacc_confdata <- powacc_confdata[!is.na(powacc_confdata$groupname),]
 # only keep needed variables
 powacc_confdata <- powacc_confdata[, c("warhist", "peaceyears", "status_excl", "onset_ko_flag", "onset_do_flag", "incidence_flag", "year", "gwgroupid", "groupname")]
 
-# Grouping for smdata for posts & global posts
-smdata <- smdata %>%
-  group_by(epr_groupid, year, country_gwid, accountname) %>%
-  summarise(
-    post_count = n(),
-    global_posts = sum(global ==1),
-    .groups = "keep"
-  ) %>%
-  arrange(epr_groupid, year, country_gwid, accountname)
+# Grouping for smdata for posts & global posts -> Is DEACTIVATED in the meantime
+# smdata <- smdata %>%
+#   group_by(epr_groupid, year, country_gwid, accountname) %>%
+#   summarise(
+#     post_count = n(),
+#     global_posts = sum(global ==1),
+#     .groups = "keep"
+#   ) %>%
+#   arrange(epr_groupid, year, country_gwid, accountname)
 
 
 # Join Social Media data with EO2 data & remove duplicates
