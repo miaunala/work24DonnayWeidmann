@@ -47,10 +47,12 @@ smdata <- smdata[, c("index_n", "global_max", "probs_global", "country_max", "pr
 
 ### EO2 data
 
-#### Reading in the eo2 data and removing NAs (based on missings within the col
-#### orgname)
+#### Reading in the eo2 data, renaming the electoral particpation variable and 
+#### removing NAs (based on missings within the col orgname) 
 ```{r}
 eo2data <- read_csv("data/data_sample_eo2_tw_fb_all_original_data.csv.gz")
+eo2data <- eo2data %>%
+  rename(elect_part = "Electoral participation")
 eo2data <- eo2data[!is.na(eo2data$orgname),]
 ```
 
