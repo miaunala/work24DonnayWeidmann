@@ -22,92 +22,57 @@ joined_data$region <- countrycode(joined_data$gwid.x, "gwn", "region")
 
 # V1 - Current version
 
-# DV: global_max & country_max & global with Fixed effects & Clustered Errors
-# Ideas for future: 
-# global~length (ob eine gewisse Länge eher dafür spricht globale/nationale Themen anzusprechen-> braucht man aber Mediatoren)
-# add fixed effects for regions
-
-
-# Global max models: channel_type, language pred, multiethn flag
-
-# Channel type & global_max
-# doesn't work yet, as there is only one platform in the dataset: Does the platform influence how global the conversation is? 
-model_global_max_channel_type <- felm(global_max ~ as.factor(channel_type) | gwid.x + year | 0 | gwid.x + year, data = joined_data)
-summary(model_global_max_channel_type)
-
-# Language prediction & global_max: How does the choice of language in the messages affect the globality of the discussions?
-model_global_max_lang_pred <- felm(global_max ~ as.factor(language_pred)  | gwid.x + year | 0 | gwid.x + year, data = joined_data)
-summary(model_global_max_lang_pred)
-# The predicted language has a significant but moderate impact on global_max, with certain 
-# languages strongly predicting higher global topic probabilities.
-
-# Multiethnic flag & global_max: Are multiethnic organisations more inclined to have a conversation about global topics?
-model_global_max_multethn_flag <- felm(global_max ~ multiethnic_flag| gwid.x + year | 0 | gwid.x + year, data = joined_data)
-summary(model_global_max_multethn_flag)
-# Messages from multiethnic organisations are significantly more likely to address 
-# global topics, as indicated by the positive and significant coefficient of the multiethnic_flag.
-
-
-# Country max models: language_pred, channel_type, elect_part, status_excl_epr_static (maybe later status_exclepr_year see comment below)
-
-# Language prediction & country_max: How does the choice of language in the messages affect the nationwide scope of the discussions?
-model_cntry_max_lang_pred <- felm(country_max ~ as.factor(language_pred) | gwid.x + year | 0 | gwid.x + year, data = joined_data)
-summary(model_cntry_max_lang_pred)
-# Similar results as above with global_max
-
-# Channel type & country_max: Does the platform influence how national the conversation is? 
-# doesn't work yet, as there is only one platform in the dataset: Does the platform influence how global the conversation is? 
-model_cntry_max_channel_type <- felm(country_max ~ as.factor(channel_type) | gwid.x + year | 0 | gwid.x + year, data = joined_data)
-summary(model_cntry_max_channel_type)
-
-# Electoral participation & country_max: Does the electoral participation of an organisation lead to more discussions on a national level?
-model_cntry_max_elect_part <- felm(country_max ~ elect_part | gwid.x + year | 0 | gwid.x + year, data = joined_data)
-summary(model_cntry_max_elect_part)
-# Not significant
-
-# Status_excl_epr_static & country_max: Does the status (exclusion) influence how national a conversation of an organisation is?
-model_cntry_max_status_excl_epr_static <- felm(country_max ~ status_excl_epr_static | gwid.x + year | 0 | gwid.x + year, data = joined_data)
-summary(model_cntry_max_status_excl_epr_static)
-# Not significant
-# Maybe could do a model with the exclusion status per year as well (data needs to be grouped beforehand)
-
-
-# Global models: channel_type, gwid.x, org_age, status_excl_epr_static, ed_language1 (maybe groupid_epr later on; status_exclepr_year see comment below)
-
-# channel_type & global: 
-# doesn't work yet, as there is only one platform in the dataset: Does the platform influence how global the conversation is? 
-model_global_channel_type <- feglm(global ~ as.factor(channel_type) | gwid.x + year, family=binomial(link="logit"), data = joined_data)
-summary(model_global_channel_type)
-
-# gwid.x & global: Is the conversation within a country more focussed on national or global topics?
-# Disclaimer: only with year fixed effects; potential collinearity issues 
-model_global_gwidx <- feglm(global ~ as.factor(gwid.x) | year, family=binomial(link="logit"), data = joined_data)
-summary(model_global_gwidx)
-# Some countries show a significant effect on whether the conversation is global or national, albeit it is only a moderate effect.
-
-# org_age & global: Do topics become more national or global with rising age of organisations?
-model_global_org_age <- feglm(global ~ org_age | gwid.x +year, family=binomial(link="logit"), data = joined_data)
-summary(model_global_org_age)
-# The age of an organisation has a slightly significant and moderate negative effect on the globality of the discourse.
-
-# status_excl_epr_static & global: Does the status (exclusion) influence whether the conversation is global or national?
-model_global_status_excl_epr_static <- feglm(global ~ status_excl_epr_static | gwid.x +year, family=binomial(link="logit"), data = joined_data)
-summary(model_global_status_excl_epr_static)
-# Not significant
-
-# ed_language1 & global: Does the language in education influence whether the conversation is global or national
-model_global_ed_language1 <- feglm(global ~ ed_language1 | gwid.x +year, family=binomial(link="logit"), data = joined_data)
-summary(model_global_ed_language1)
-# The language in education has a significant impact on whether the conversation is rather global or national.
-# Disclaimer: Collinearity issues detected
-
-
-
 # Descriptives machen: 
 
 # Descriptives of variables & correlations
 
 # Global / Country Max plots
+
+
+# Compare global_max scores and country_max scores based on posts
+# Compare global_max scores and country_max scores using a regression line to detect
+# a correlation; as one of those two dimensions should be higher as the 
+# other one, as we would expect that an organisation communicates either rather on 
+# a global or on a country level.
+plt_global_country_max <- ggplot(joined_data, aes(x = global_max, y = country_max)) +
+  geom_point(alpha = 0.6) +  # Add transparency to avoid overplotting
+  geom_smooth(method = "lm", col = "blue", se = FALSE) +  # Add a linear regression line
+  labs(title = "Scatterplot: Global Max vs Country Max",
+       x = "Global Max",
+       y = "Country Max") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -2),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+
+ggExtra::ggMarginal(plt_global_country_max, size = 2,type = "histogram", xparams= list(fill="lightblue"), yparams =list(fill="lightgreen"))
+
+ggsave("global_country_max_scatter.jpg", plot= plt_global_country_max, bg = "white")
+
+# Same but posts divided in regions.
+plt_global_country_max_regions <- ggplot(joined_data, aes(x = global_max, y = country_max, colour=region)) +
+  geom_point(alpha = 0.5) +  
+  geom_smooth(method = "lm", col = "black", se = FALSE) +  
+  labs(title = "Scatterplot: Global Max vs Country Max",
+       x = "Global Max",
+       y = "Country Max") +
+  theme_minimal() 
+
+ggExtra::ggMarginal(plt_global_country_max2, groupColour = TRUE, groupFill = TRUE)
+
+ggsave("global_country_max_regions.jpg", plot= plt_global_country_max_regions, bg = "white")
+
+# Contrary to our assumption, the plot indicates a positive correlation between
+# country_max and global_max scores, thus, implying that if the global max score is 
+# higher then also the country max score is higher. Thus, this may mean that posts 
+# that generally have a relation to a geographical level will spur up scores on both
+# country and global level. Disclaimer: These preliminary results should be used 
+# with caution: Currently there is a data issue which maps these scores to the wrong
+# posts in another dataset. Furthermore, it should also be mentioned that there 
+# are many posts with a zero score on a country level, whereas zero scores barely
+# exist for the global scores.
+
 
 # Country
 
@@ -254,17 +219,62 @@ ggsave("Country_Max_static_exclusion.jpg", plot = plt_cntrymax_static_excl, bg="
 
 
 
-# work update dokument updaten mit links zu den reports (diese auf google drive drauf)
-
-# verschicken
 
 
+# DV: global_max & country_max & global with Fixed effects & Clustered Errors
+# Ideas for future: 
+# global~length (whether a certain length of the post is correlated with the choice
+# of global or national topics -> perhaps needs mediators)
+# add fixed effects for regions
 
 
+# Global max models: multiethn flag
+
+# Multiethnic flag & global_max: Are multiethnic organisations more inclined to have a conversation about global topics?
+model_global_max_multethn_flag <- felm(global_max ~ multiethnic_flag| gwid.x + year | 0 | gwid.x + year, data = joined_data)
+summary(model_global_max_multethn_flag)
+# Messages from multiethnic organisations are significantly more likely to address 
+# global topics, as indicated by the positive and significant coefficient of the multiethnic_flag.
 
 
+# Country max models: elect_part, status_excl_epr_static (maybe later status_exclepr_year see comment below)
+
+# Electoral participation & country_max: Does the electoral participation of an organisation lead to more discussions on a national level?
+model_cntry_max_elect_part <- felm(country_max ~ elect_part | gwid.x + year | 0 | gwid.x + year, data = joined_data)
+summary(model_cntry_max_elect_part)
+# Not significant
+
+# Status_excl_epr_static & country_max: Does the status (exclusion) influence how national a conversation of an organisation is?
+model_cntry_max_status_excl_epr_static <- felm(country_max ~ status_excl_epr_static | gwid.x + year | 0 | gwid.x + year, data = joined_data)
+summary(model_cntry_max_status_excl_epr_static)
+# Not significant
+# Maybe could do a model with the exclusion status per year as well (data needs to be grouped beforehand)
 
 
+# Global models: channel_type, gwid.x, org_age, status_excl_epr_static, ed_language1 (maybe groupid_epr later on; status_exclepr_year see comment below)
+
+
+# gwid.x & global: Is the conversation within a country more focussed on national or global topics?
+# Disclaimer: only with year fixed effects; potential collinearity issues 
+model_global_gwidx <- felm(global ~ as.factor(gwid.x) | year | 0 | year, data = joined_data)
+summary(model_global_gwidx)
+# Some countries show a significant effect on whether the conversation is global or national, albeit it is only a moderate effect.
+
+# org_age & global: Do topics become more national or global with rising age of organisations?
+model_global_org_age <- felm(global ~ org_age | gwid.x +year | 0 | gwid.x +year, data = joined_data)
+summary(model_global_org_age)
+# The age of an organisation has a slightly significant and moderate negative effect on the globality of the discourse.
+
+# status_excl_epr_static & global: Does the status (exclusion) influence whether the conversation is global or national?
+model_global_status_excl_epr_static <- felm(global ~ status_excl_epr_static | gwid.x +year | 0 | gwid.x +year, data = joined_data)
+summary(model_global_status_excl_epr_static)
+# Not significant
+
+# ed_language1 & global: Does the language in education influence whether the conversation is global or national
+model_global_ed_language1 <- felm(global ~ ed_language1 | gwid.x +year | 0 | gwid.x +year, data = joined_data)
+summary(model_global_ed_language1)
+# The language in education has a significant impact on whether the conversation is rather global or national.
+# Disclaimer: Collinearity issues detected
 
 
 
@@ -317,7 +327,8 @@ model_regions2 <- felm(prop_global ~ as.factor(gov_pow) +as.factor(reg_autonom) 
 summary(model_regions2)
 
 
-### wie erklärt man die anzahl der globalen Kommunikation von Gruppen? -> AIms einer Organisation, evtl Gruppenvariablen (evtl aber dann zu heterogene), 
+### How do you explain the likelihood of global communication of groups? 
+#-> Aims of an organisation, perehaps group variables (but then potentially to heterogenous), 
 ## Ethnic claim 
 ### Removing NAs from specific column
 df_modelclaim <- joined_data[!is.na(joined_data$eth_claim), ]
@@ -335,26 +346,26 @@ model_claim_region <- felm(prop_global~eth_claim + post_count | region + year |0
 
 
 
-### ==> was der Typ von den orgsniationen ist (Rebellen etc.) ==> cannot answer this up till now
+### ==> What is the type of the organisations (rebels etc.) ==> cannot answer this up till now
 
-### => Fragen: wie power access die proportion of globa posts beeinflusst; Konflikte (ongoing violent conflict) proportion of global posts beeinflusst
-  #### nachher: wenn problem mit conflict data geklärt ist
+### => Questions: How access power influences the proportion of global posts; how conflicts (ongoing violent conflict) influence the proportion of global posts?
+  #### for later when conflict with data is resolved
 
 ### other group vars
 
 
 
 ## descriptive / time analysis?
-###Time trend -> global Themen over time? über alle Gruppen hinweg 
-### conflict pro jahr & gruppe auf global posts
+###Time trend -> global Themen over time? over all groups
+### conflict per year & group on global posts
 
 
 
 
 # Descriptive Analyses
-## missing: time analysis: golbal themen over time über alle gruppen hinweg -> da oder?
+## missing: time analysis: global topics over time over all groups -> da oder?
 ### conflict pro jahr & gruppe
-### prop global -> pro Organisations / Jahr
+### prop global -> per organisation / year
 
 
 ### Descriptive Analysis of global posts over years
@@ -409,7 +420,7 @@ propglobal_year_region
 
 
 
-# Welche Organisationen verwenden mehr globale Posts? Hier würde ich einfach nach “governmental power”, “regional autonomy” und “separatism” unterscheiden.
+# Which organisations use more global posts? Here I would simply differentiate between “governmental power”, “regional autonomy” and “separatism”.
 # Calculate the average share of global posts for each organisation according to the variables
 summary_data <- joined_data %>%
   group_by(gov_pow, reg_autonom, sep_irred, orgname) %>%
@@ -420,7 +431,7 @@ summary_data <- joined_data %>%
 summary_data <- summary_data %>%
   filter(!is.na(gov_pow), !is.na(avg_prop_global))
 
-# Boxplot für den Anteil globaler Posts nach "Governmental power"
+# Boxplot for the share of global posts by “Governmental power”
 ggplot(summary_data, aes(x = gov_pow, y = avg_prop_global)) +
   geom_boxplot() +
   labs(title = "Average Proportion of Global Posts by Governmental Power",
@@ -428,7 +439,7 @@ ggplot(summary_data, aes(x = gov_pow, y = avg_prop_global)) +
        y = "Average Proportion of Global Posts") +
   theme_minimal()
 
-# Boxplot für den Anteil globaler Posts nach "Regional autonomy"
+# Boxplot for the share of global posts by "Regional autonomy"
 ggplot(summary_data, aes(x = reg_autonom, y = avg_prop_global)) +
   geom_boxplot() +
   labs(title = "Average Proportion of Global Posts by Regional Autonomy",
@@ -436,7 +447,7 @@ ggplot(summary_data, aes(x = reg_autonom, y = avg_prop_global)) +
        y = "Average Proportion of Global Posts") +
   theme_minimal()
 
-# Boxplot für den Anteil globaler Posts nach "Separatism/irredentism"
+# Boxplot for the share of global posts by "Separatism/irredentism"
 ggplot(summary_data, aes(x = sep_irred, y = avg_prop_global)) +
   geom_boxplot() +
   labs(title = "Average Proportion of Global Posts by Separatism/Irredentism",
