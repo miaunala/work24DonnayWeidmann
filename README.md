@@ -3,8 +3,4 @@
 Description of Project:
 tbc
 
-Logbook of problems (file, sub-project(opt.), Time, Who(initials):
-- merge_data.R, joins, 21.5.24 15h, NG:
-    - leftjoins behave strangely as the original file when being leftjoined with create more observations. Shouldn't the observations stay the same as in the first file? => SOLVED
-    - Duplicates after leftjoins after the second join, issue is solved though.
-      ==> SOLVED
+Updates are tba on this drive: ![image](https://github.com/user-attachments/assets/b04f26ce-3a9d-4922-b4a5-81270a262f94)
