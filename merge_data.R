@@ -39,10 +39,57 @@ eo2data <- eo2data %>%
 eo2data <- eo2data[!is.na(eo2data$orgname),]
 
 
-# Joins
+# EPR
+eprdata<- read_csv("data/epro_t.csv")
+eprdata <- eprdata[!duplicated(eprdata), ]
+eprdata <- eprdata %>%
+  rename(gov_pow = `Governmental power`) %>%
+  rename(reg_autonom = `Regional autonomy`) %>%
+  rename(sep_irred = `Separatism/irredentism`) %>%
+  rename(eth_claim = `Ethnic claim`)
+eprdata <- eprdata[, c("gov_pow", "reg_autonom", "sep_irred", "org_id", "year", "gwid", "groupid", "eth_claim")]
 
+
+# Power Access & Conflict data
+powacc_confdata <- read_csv("data/powacc_conflict.csv")
+powacc_confdata <- powacc_confdata[!is.na(powacc_confdata$groupname),]
+powacc_confdata <- powacc_confdata[, c("warhist", "peaceyears", "status_excl", "onset_ko_flag", "onset_do_flag", "incidence_flag", "year", "gwgroupid", "groupname")]
+
+
+
+# Join Social Media data w/ ...
+
+# ... EO2 data
 # Left-join of Social Media data and eo2 data based on the index.
 joined_data <- smdata %>% left_join(eo2data, by = ("index_n"="index_n"))
+
+
+# ... EPR data
+#   
+joined_data <- joined_data %>%
+  left_join(select(eprdata, gov_pow, reg_autonom, sep_irred, groupid, year, gwid, eth_claim, org_id), by = c("year", "gwid.x"="gwid", "groupid", "org_id_from_coll"="org_id"))
+
+
+# ... Power Access & Conflict data
+# 
+joined_data <- joined_data %>% left_join(select(powacc_confdata, "warhist", "peaceyears", "status_excl", "onset_ko_flag", "onset_do_flag", "incidence_flag", "year", "gwgroupid", "groupname"), by = c("gwgroupid", "year"))
+
+
+# Group to generate new summary variables on posts
+
+# Group data to generate post count, global posts and prop_global
+summary_data <- joined_data %>%
+  group_by(groupid, year, gwid.x, accountname) %>%
+  summarise(
+    post_count = n(),
+    global_posts = sum(global == 1),
+    .groups = "keep"
+  ) %>%
+  mutate(prop_global = global_posts / post_count)
+
+# Join summary data back to the original dataset
+joined_data <- joined_data %>%
+  left_join(summary_data, by = c("groupid", "year", "gwid.x", "accountname"))
 
 
 # Saving joined data as CSV
@@ -93,14 +140,14 @@ powacc_confdata <- powacc_confdata[!is.na(powacc_confdata$groupname),]
 powacc_confdata <- powacc_confdata[, c("warhist", "peaceyears", "status_excl", "onset_ko_flag", "onset_do_flag", "incidence_flag", "year", "gwgroupid", "groupname")]
 
 # Grouping for smdata for posts & global posts -> Is DEACTIVATED in the meantime
-# smdata <- smdata %>%
-#   group_by(epr_groupid, year, country_gwid, accountname) %>%
-#   summarise(
-#     post_count = n(),
-#     global_posts = sum(global ==1),
-#     .groups = "keep"
-#   ) %>%
-#   arrange(epr_groupid, year, country_gwid, accountname)
+smdata <- smdata %>%
+  group_by(epr_groupid, year, country_gwid, accountname) %>%
+  summarise(
+    post_count = n(),
+    global_posts = sum(global ==1),
+    .groups = "keep"
+  ) %>%
+  arrange(epr_groupid, year, country_gwid, accountname)
 
 
 # Join Social Media data with EO2 data & remove duplicates
