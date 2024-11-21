@@ -111,28 +111,21 @@ joined_data <- joined_data %>% left_join(select(powacc_confdata, "warhist", "pea
 
 #### Group data to generate post count, global posts and prop_global
 ```{r}
-summary_data <- joined_data %>%
-  group_by(groupid, year, gwid.x, accountname) %>%
-  summarise(
-    post_count = n(),
-    global_posts = sum(global == 1),
-    .groups = "keep"
+joined_data <- joined_data %>% group_by(year, org_id_from_coll) %>%
+  mutate(
+    post_count = n(),                              # Count of posts per group
+    global_posts = sum(global == 1),               # Count of global posts per group
+    prop_global = global_posts / post_count        # Proportion of global posts per group
   ) %>%
-  mutate(prop_global = global_posts / post_count)
+  ungroup()
 ```
 
-
-#### Join summary data back to the original dataset
-```{r}
-joined_data <- joined_data %>%
-  left_join(summary_data, by = c("groupid", "year", "gwid.x", "accountname"))
-```
 
 
 
 ### Saving joined data as CSV
 ```{r}
-write_csv(x = joined_data, "data/joined_data.csv")
+write_csv(x = joined_data, "data/data/joined_data.csv")
 ```
 
 
