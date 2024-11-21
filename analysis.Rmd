@@ -37,9 +37,6 @@ joined_data <- read_csv("joined_data.csv")
 joined_data$country_name <- countrycode(joined_data$gwid.x, "gwn", "country.name")
 joined_data$region <- countrycode(joined_data$gwid.x, "gwn", "region")
 
-# can be ignored later on
-joined_data <- joined_data %>%
-  rename(elect_part = "Electoral participation")
 ```
 
 ## Version 1: Current Version
@@ -119,7 +116,7 @@ plt_globalmax_cntry <- ggplot(joined_data, aes(x = as.factor(country_name), y = 
        x = "Country",
        y = "Global Max") +  
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, vjust = -1), 
+  theme(axis.text.x = element_text(angle = 45), 
         axis.title.y = element_text(vjust = 0.5),
         legend.position = "none") 
 
@@ -142,7 +139,7 @@ plt_cntrymax_cntry <- ggplot(joined_data, aes(x = as.factor(country_name), y = c
        x = "Country",
        y = "Country Max") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, vjust = -1), 
+  theme(axis.text.x = element_text(angle = 45), 
         axis.title.y = element_text(vjust = 0.5),
         legend.position = "none") 
 ggsave("Country_Max_Country.jpg", plot = plt_cntrymax_cntry, bg="white")
@@ -328,7 +325,7 @@ relatively low, albeit there are many outliers in both cases.
 Country Max by Static exclusion status  
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-plt_cntrymax_static_excl <- ggplot(na.omit(joined_data[, c("global_max", "status_excl_epr_static")]), aes(x = as.factor(status_excl_epr_static), y = global_max)) +
+plt_cntrymax_static_excl <- ggplot(na.omit(joined_data[, c("country_max", "status_excl_epr_static")]), aes(x = as.factor(status_excl_epr_static), y = country_max)) +
   geom_boxplot() +
   labs(title = "Country Max by Static Exclusion Status",
        x = "Static Exclusion Status",
@@ -349,6 +346,647 @@ of posts nor the likelihood of a nation-focus of posts.
 
 Disclaimer: Plots for global variable, as well as exclusion status per year are a work in process.  
 
+
+### new data
+
+Global Max by primary channel
+```{r}
+plt_globmax_prim_chan <- ggplot(na.omit(joined_data[, c("global_max", "primary")]), aes(x = as.factor(primary), y = global_max)) +
+  geom_boxplot() +
+  labs(title = "Global Max by Primary Channel",
+       x = "Primary Channel",
+       y = "Global Max") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+ggsave("Global_Max_primary.jpg", plot = plt_globmax_prim_chan, bg="white")
+plt_globmax_prim_chan
+```
+
+Country Max by primary channel
+```{r}
+plt_cntrymax_prim_chan <- ggplot(na.omit(joined_data[, c("country_max", "primary")]), aes(x = as.factor(primary), y = country_max)) +
+  geom_boxplot() +
+  labs(title = "Country Max by Primary Channel",
+       x = "Primary Channel",
+       y = "Country Max") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+ggsave("Country_Max_primary.jpg", plot = plt_cntrymax_prim_chan, bg="white")
+plt_cntrymax_prim_chan
+```
+
+
+Global Max by election participation
+```{r}
+plt_globmax_elect_part <- ggplot(na.omit(joined_data[, c("global_max", "elect_part")]), aes(x = as.factor(elect_part), y = global_max)) +
+  geom_boxplot() +
+  labs(title = "Global Max by Electoral Participation",
+       x = "Electoral Participation",
+       y = "Global Max") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+ggsave("Global_Max_elect_part.jpg", plot = plt_globmax_elect_part, bg="white")
+plt_globmax_elect_part
+```
+
+
+Country Max by election participation
+```{r}
+plt_cntrymax_elect_part <- ggplot(na.omit(joined_data[, c("country_max", "elect_part")]), aes(x = as.factor(elect_part), y = country_max)) +
+  geom_boxplot() +
+  labs(title = "Country Max by Electoral Participation",
+       x = "Electoral Participation",
+       y = "Country Max") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+ggsave("Country_Max_elect_part.jpg", plot = plt_cntrymax_elect_part, bg="white")
+plt_cntrymax_elect_part
+```
+
+
+
+Global Max by language prediction
+```{r}
+plt_globmax_lang_pred <- ggplot(joined_data, aes(x = as.factor(language_pred), y = global_max)) +
+  geom_boxplot(fill = "lightgreen", color="black") +
+  labs(title = "Global Max by Language Prediction",
+       x = "Language Prediction",
+       y = "Global Max") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45), 
+        axis.title.y = element_text(vjust = 0.5),
+        legend.position = "none") 
+
+ggsave("Global_Max_lang_pred.jpg", plot = plt_globmax_lang_pred, bg="white", width = 20, height = 8, units = "cm")
+
+plt_globmax_cntry
+```
+
+Country Max by language prediction
+```{r}
+plt_cntrymax_lang_pred <- ggplot(joined_data, aes(x = as.factor(language_pred), y = country_max)) +
+  geom_boxplot(fill = "lightgreen", color="black") +
+  labs(title = "Country Max by Language Prediction",
+       x = "Language Prediction",
+       y = "Country Max") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45), 
+        axis.title.y = element_text(vjust = 0.5),
+        legend.position = "none") 
+
+ggsave("Cntry_Max_lang_pred.jpg", plot = plt_cntrymax_lang_pred, bg="white", width = 20, height = 8, units = "cm")
+
+plt_cntrymax_lang_pred
+```
+
+
+Global Max by education language 
+```{r}
+plt_globmax_educ_lang <- ggplot(na.omit(joined_data[, c("global_max", "ed_language1")]), aes(x = as.factor(ed_language1), y = global_max)) +
+  geom_boxplot(fill = "lightgreen", color="black") +
+  labs(title = "Global Max by Education Language",
+       x = "Education Language",
+       y = "Global Max") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45), 
+        axis.title.y = element_text(vjust = 0.5),
+        legend.position = "none") 
+
+ggsave("Global_Max_educ_lang.jpg", plot = plt_globmax_educ_lang, bg="white", width = 20, height = 8, units = "cm")
+
+plt_globmax_educ_lang
+```
+
+Country Max by education language 
+```{r}
+plt_cntrymax_educ_lang <- ggplot(na.omit(joined_data[, c("country_max", "ed_language1")]), aes(x = as.factor(ed_language1), y = country_max)) +
+  geom_boxplot(fill = "lightgreen", color="black") +
+  labs(title = "Country Max by Education Language",
+       x = "Education Language",
+       y = "Country Max") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45), 
+        axis.title.y = element_text(vjust = 0.5),
+        legend.position = "none") 
+
+ggsave("Cntry_Max_educ_lang.jpg", plot = plt_cntrymax_educ_lang, bg="white", width = 20, height = 8, units = "cm")
+
+plt_cntrymax_educ_lang
+```
+
+
+Global Max by statusname
+```{r}
+plt_globmax_statusname <- ggplot(na.omit(joined_data[, c("global_max", "statusname")]), aes(x = as.factor(statusname), y = global_max)) +
+  geom_boxplot(fill = "lightgreen", color="black") +
+  labs(title = "Global Max by Statusname",
+       x = "Statusname",
+       y = "Global Max") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45), 
+        axis.title.y = element_text(vjust = 0.5),
+        legend.position = "none") 
+
+ggsave("Global_Max_statusname.jpg", plot = plt_globmax_statusname, bg="white")
+
+plt_globmax_statusname
+```
+
+Country Max by statusname
+```{r}
+plt_cntrymax_statusname <- ggplot(na.omit(joined_data[, c("country_max", "statusname")]), aes(x = as.factor(statusname), y = country_max)) +
+  geom_boxplot(fill = "lightgreen", color="black") +
+  labs(title = "Country Max by Statusname",
+       x = "Statusname",
+       y = "Country Max") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45), 
+        axis.title.y = element_text(vjust = 0.5),
+        legend.position = "none") 
+
+ggsave("Cntry_Max_statusname.jpg", plot = plt_cntrymax_statusname, bg="white")
+
+plt_cntrymax_statusname
+```
+
+
+Global Max by government power
+```{r}
+plt_globmax_gov_pow <- ggplot(na.omit(joined_data[, c("global_max", "gov_pow")]), aes(x = as.factor(gov_pow), y = global_max)) +
+  geom_boxplot() +
+  labs(title = "Global Max by Government Power",
+       x = "Government Power",
+       y = "Global Max") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+ggsave("Global_Max_gov_pow.jpg", plot = plt_globmax_gov_pow, bg="white")
+plt_globmax_gov_pow
+```
+
+Country Max by government power
+```{r}
+plt_cntrymax_gov_pow <- ggplot(na.omit(joined_data[, c("country_max", "gov_pow")]), aes(x = as.factor(gov_pow), y = country_max)) +
+  geom_boxplot() +
+  labs(title = "Country Max by Government Power",
+       x = "Government Power",
+       y = "Country Max") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+ggsave("Cntry_Max_gov_pow.jpg", plot = plt_cntrymax_gov_pow, bg="white")
+plt_cntrymax_gov_pow
+```
+
+
+Global Max by regional autonomy
+```{r}
+plt_globmax_reg_aut <- ggplot(na.omit(joined_data[, c("global_max", "reg_autonom")]), aes(x = as.factor(reg_autonom), y = global_max)) +
+  geom_boxplot() +
+  labs(title = "Global Max by Regional Autonomy",
+       x = "Regional Autonomy",
+       y = "Global Max") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+ggsave("Global_Max_reg_aut.jpg", plot = plt_globmax_reg_aut, bg="white")
+plt_globmax_reg_aut
+```
+
+Country Max by regional autonomy
+```{r}
+plt_cntrymax_reg_aut <- ggplot(na.omit(joined_data[, c("country_max", "reg_autonom")]), aes(x = as.factor(reg_autonom), y = country_max)) +
+  geom_boxplot() +
+  labs(title = "Country Max by Regional Autonomy",
+       x = "Regional Autonomy",
+       y = "Country Max") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+ggsave("Cntry_Max_reg_aut.jpg", plot = plt_cntrymax_reg_aut, bg="white")
+plt_cntrymax_reg_aut
+```
+
+
+
+Global Max by separatism / irridentism
+```{r}
+plt_globmax_sep_irred <- ggplot(na.omit(joined_data[, c("global_max", "sep_irred")]), aes(x = as.factor(sep_irred), y = global_max)) +
+  geom_boxplot() +
+  labs(title = "Global Max by Separatism/Irridentism",
+       x = "Separatism/Irridentism",
+       y = "Global Max") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+ggsave("Global_Max_sep_irred.jpg", plot = plt_globmax_sep_irred, bg="white")
+plt_globmax_sep_irred
+```
+
+Country Max by separatism / irridentism
+```{r}
+plt_cntrymax_sep_irred <- ggplot(na.omit(joined_data[, c("country_max", "sep_irred")]), aes(x = as.factor(sep_irred), y = country_max)) +
+  geom_boxplot() +
+  labs(title = "Country Max by Separatism/Irridentism",
+       x = "Separatism/Irridentism",
+       y = "Country Max") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+ggsave("Cntry_Max_sep_irred.jpg", plot = plt_cntrymax_sep_irred, bg="white")
+plt_cntrymax_sep_irred
+```
+
+
+Global Max by ethnic claim
+```{r}
+plt_globmax_eth_claim <- ggplot(na.omit(joined_data[, c("global_max", "eth_claim")]), aes(x = as.factor(eth_claim), y = global_max)) +
+  geom_boxplot() +
+  labs(title = "Global Max by Ethnic Claim",
+       x = "Ethnic Claim",
+       y = "Global Max") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+ggsave("Global_Max_eth_claim.jpg", plot = plt_globmax_eth_claim, bg="white")
+plt_globmax_eth_claim
+```
+
+Country Max by ethnic claim
+```{r}
+plt_cntrymax_eth_claim <- ggplot(na.omit(joined_data[, c("country_max", "eth_claim")]), aes(x = as.factor(eth_claim), y = country_max)) +
+  geom_boxplot() +
+  labs(title = "Country Max by Ethnic Claim",
+       x = "Ethnic Claim",
+       y = "Country Max") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+ggsave("Cntry_Max_eth_claim.jpg", plot = plt_cntrymax_eth_claim, bg="white")
+plt_cntrymax_eth_claim
+```
+
+
+
+#### Prop Global
+
+
+Distribution of global post proportions over all organisations
+```{r}
+unique_organisations <- joined_data %>%
+  distinct(org_id_from_coll, .keep_all = TRUE)
+
+prop_of_glob_props <- ggplot(unique_organisations, aes(x = prop_global)) +
+  geom_histogram(binwidth = 0.05, fill = "skyblue", color = "black") +
+  labs(
+    title = "Distribution of Global Post Proportions",
+    x = "Proportion of global posts",
+    y = "Number of Organisations"
+  ) +
+  theme_minimal()
+
+ggsave("Proportions_GlobalProportions.jpg", plot = prop_of_glob_props, bg="white")
+prop_of_glob_props
+
+```
+
+
+
+
+Per country
+```{r}
+plt_propglob_cntry <- ggplot(joined_data, aes(x = as.factor(country_name), y = prop_global)) +
+  geom_boxplot(fill = "beige", color="black") +
+  labs(title = "Proportion of global posts by Country",
+       x = "Country",
+       y = "Global Proportion") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90), 
+        axis.title.y = element_text(vjust = 0.5),
+        legend.position = "none") 
+#ggsave("Prop_Glob_Country.jpg", plot = plt_propglob_cntry, bg="white")
+plt_propglob_cntry
+```
+
+
+Per Region 
+
+```{r}
+plt_propglob_region <- ggplot(joined_data, aes(x = as.factor(region), y = prop_global)) +
+  geom_boxplot(fill = "beige", color="black") +
+  labs(title = "Proportion of global posts by Region",
+       x = "Region",
+       y = "Global Proportion") +
+  theme_minimal() +
+  theme(axis.title.y = element_text(vjust = 0.5),
+        legend.position = "none") 
+#ggsave("Prop_Global_Region.jpg", plot = plt_propglob_region, bg="white")
+plt_propglob_region
+```
+ 
+#### Channel Type
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+plt_prop_glob_channel_type <- ggplot(joined_data, aes(x = as.factor(channel_type), y = prop_global)) +
+  geom_boxplot() +
+  labs(title = "Global proportion of all posts by Channel Type",
+       x = "Channel Type",
+       y = "Proportion of global posts") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+#ggsave("Prop_Global_Channel_Type.jpg", plot = plt_prop_glob_channel_type, bg="white")
+plt_prop_glob_channel_type
+```  
+
+
+by Multiethnicity
+
+```{r}
+plt_prop_glob_multiethnicity <- ggplot(joined_data, aes(x = as.factor(multiethnic_flag), y = prop_global)) +
+  geom_boxplot() +
+  labs(title = "Global proportion of all posts by Multiethnicity",
+       x = "Multiethnicity",
+       y = "Proportion of global posts") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+#ggsave("Prop_glob_Multiethnicity.jpg", plot = plt_prop_glob_multiethnicity, bg="white")
+plt_prop_glob_multiethnicity
+```
+
+
+Organisation Age
+```{r}
+plt_prop_glob_org_age <- ggplot(joined_data, aes(x = org_age, y = prop_global)) +
+  geom_jitter() +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(title = "Global proportion of all posts by Organization Age",
+       x = "Organization Age",
+       y = "Proportion of global posts") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+#ggsave("Prop_Global_Org_Age.jpg", plot = plt_prop_glob_org_age, bg="white")
+plt_prop_glob_org_age
+```
+
+
+
+
+Static Exclusion Status 
+
+```{r}
+plt_prop_glob_static_excl <- ggplot(na.omit(joined_data[, c("prop_global", "status_excl_epr_static")]), aes(x = as.factor(status_excl_epr_static), y = prop_global)) +
+  geom_boxplot() +
+  labs(title = "Global proportion of all posts by Static Exclusion Status",
+       x = "Static Exclusion Status",
+       y = "Proportion of global posts") +
+  scale_x_discrete(labels=c("No", "Yes"))+
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+#ggsave("Prop_glob_static_exclusion.jpg", plot = plt_prop_glob_static_excl, bg="white")
+plt_prop_glob_static_excl
+```
+
+
+Primary Account
+```{r}
+plt_prop_glob_primary <- ggplot(joined_data, aes(x = as.factor(primary), y = prop_global)) +
+  geom_boxplot() +
+  labs(title = "Global proportion of all posts by Primary Account",
+       x = "Primary Account",
+       y = "Proportion of global posts") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+#ggsave("Prop_Global_Primary.jpg", plot = plt_prop_glob_primary, bg="white")
+plt_prop_glob_primary
+```
+
+Election Participation
+```{r}
+plt_prop_glob_elect_part <- ggplot(joined_data, aes(x = as.factor(elect_part), y = prop_global)) +
+  geom_boxplot() +
+  labs(title = "Global proportion of all posts by Electoral Participation of organisation",
+       x = "Electoral Participation",
+       y = "Proportion of global posts") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+#ggsave("Prop_Global_Elect_Part.jpg", plot = plt_prop_glob_elect_part, bg="white")
+plt_prop_glob_elect_part
+```
+
+Language Prediction
+```{r, fig.width=10, fig.height=8}
+plt_propglob_langpred <- ggplot(joined_data, aes(x = as.factor(language_pred), y = prop_global)) +
+  geom_boxplot(fill = "beige", color = "black", position=position_dodge(width=3)) +
+  labs(
+    title = "Proportion of Global Posts by Language",
+    x = "Language",
+    y = "Global Proportion"
+  ) +
+  theme_minimal() +
+  theme(axis.title.y = element_text(vjust = 0.5)) +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2))  # Staggers labels
+
+
+#ggsave("Prop_Global_Lang.jpg", plot = plt_propglob_langpred, bg="white")
+plt_propglob_langpred
+```
+
+Language in Education
+```{r, fig.width=10, fig.height=8}
+plt_propglob_langeduc <- ggplot(joined_data, aes(x = as.factor(ed_language1), y = prop_global)) +
+  geom_boxplot(fill = "beige", color = "black", position=position_dodge(width=3)) +
+  labs(
+    title = "Proportion of Global Posts by Language in Education",
+    x = "Language in education",
+    y = "Global Proportion"
+  ) +
+  theme_minimal() +
+  theme(axis.title.y = element_text(vjust = 0.5)) +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2))  # Staggers labels
+
+
+#ggsave("Prop_Global_Lang_Educ.jpg", plot = plt_propglob_langeduc, bg="white")
+plt_propglob_langeduc
+```
+
+
+Statusname:
+```{r}
+plt_prop_glob_statusname <- ggplot(joined_data, aes(x = as.factor(statusname), y = prop_global)) +
+  geom_boxplot() +
+  labs(title = "Global proportion of all posts by status",
+       x = "Status",
+       y = "Proportion of global posts") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2),
+    axis.text.x = element_text(angle = 90)
+  ) 
+#ggsave("Prop_Global_Status.jpg", plot = plt_prop_glob_statusname, bg="white")
+plt_prop_glob_statusname
+```
+
+Government power
+```{r}
+plt_prop_glob_gov_pow <- ggplot(na.omit(joined_data[, c("prop_global", "gov_pow")]),aes(x = as.factor(gov_pow), y = prop_global)) +
+  geom_boxplot() +
+  labs(title = "Global proportion of all posts by Government Power",
+       x = "Government Power",
+       y = "Proportion of global posts") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+#ggsave("Prop_glob_gov_pow.jpg", plot = plt_prop_glob_gov_pow, bg="white")
+plt_prop_glob_gov_pow
+```
+
+Regional Autonomy
+```{r}
+plt_prop_glob_reg_auton <- ggplot(na.omit(joined_data[, c("prop_global", "reg_autonom")]),aes(x = as.factor(reg_autonom), y = prop_global)) +
+  geom_boxplot() +
+  labs(title = "Global proportion of all posts by Regional Autonomy",
+       x = "Regional Autonomy",
+       y = "Proportion of global posts") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+#ggsave("Prop_glob_reg_autonom.jpg", plot = plt_prop_glob_reg_auton, bg="white")
+plt_prop_glob_reg_auton
+```
+
+Separatism / Irridentism
+```{r}
+plt_prop_glob_sep_irred <- ggplot(na.omit(joined_data[, c("prop_global", "sep_irred")]),aes(x = as.factor(sep_irred), y = prop_global)) +
+  geom_boxplot() +
+  labs(title = "Global proportion of all posts by Separatism / Irridentism",
+       x = "Separatism / Irridentism",
+       y = "Proportion of global posts") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+#ggsave("Prop_glob_sep_irred.jpg", plot = plt_prop_glob_sep_irred, bg="white")
+plt_prop_glob_sep_irred
+```
+
+
+Ethnic Claim
+```{r}
+plt_prop_glob_eth_claim <- ggplot(na.omit(joined_data[, c("prop_global", "eth_claim")]),aes(x = as.factor(eth_claim), y = prop_global)) +
+  geom_boxplot() +
+  labs(title = "Global proportion of all posts by Ethnic Claim",
+       x = "Ethnic Claim",
+       y = "Proportion of global posts") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+#ggsave("Prop_glob_eth_claim.jpg", plot = plt_prop_glob_eth_claim, bg="white")
+plt_prop_glob_eth_claim
+```
+
+
+War history (Count variable indicating number of conflict onsets this group has previously experienced)
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+plt_glob_prop_war_hist <- ggplot(joined_data, aes(x = warhist, y = prop_global)) +
+  geom_jitter() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Proportion of Global Posts by War History",
+       x = "War History",
+       y = "Proportion of global posts") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(vjust = -1),
+    axis.title.y = element_text(vjust = 2)
+  ) 
+#ggsave("Glob_Prop_war_hist.jpg", plot = plt_glob_prop_war_hist, bg="white")
+plt_glob_prop_war_hist
+```
+
+
+VARIABLEN FÜR WEITERE PLOTS:
+- primary -> mit allen global/Cntry vars ==> done for: prop_glob
+- elect_part -> mit allen global/Cntry vars ==> done for: prop_glob
+- gwgroupid -> mit allen (müsste auf gruppenebnen noch aggregiert werden)
+- n_epr_grps_cntry -> ist alle gruppen in einem land??? => evtl. alles (müsste auf gruppenebnen noch aggregiert werden)
+- language_pred ==> done for: prop_glob
+- ed_language1==> done for: prop_glob
+- statusname ==> done for: prop_glob
+- gov_pow ==> done for: prop_glob
+- reg_autonom ==> done for: prop_glob
+- sep_irred ==> done for: prop_glob
+- eth_claim ==> done for: prop_glob
+- warhist ==> müsste auf gruppenebnen noch aggregiert werden
+- peaceyears ==> müsste auf gruppenebnen noch aggregiert werden
+- onset_ko_flag ==> müsste auf gruppenebnen noch aggregiert werden
+- onset_do_flag ==> müsste auf gruppenebnen noch aggregiert werden
+- incidence_flag ==> müsste auf gruppenebnen noch aggregiert werden
 
 
 
