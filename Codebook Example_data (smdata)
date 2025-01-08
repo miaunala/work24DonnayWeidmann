@@ -10,9 +10,9 @@ index_chr
 countryname: Name of the country
 length
 ind
-global_max
+global_max: Maximum topic probability for the global LDA model
 probs_global
-country_max
+country_max: maximum topic probability for the country-level LDA model
 probs_country
 global: Dummy indicator if post is global or not
 year: Year of the post
