@@ -27,8 +27,6 @@ library(fixest)
 #setwd("C:/Users/whatt/Desktop/2024_ResAss_UZHIPZ_WeidmannDonnay/work24DonnayWeidmann")
 ```
 
-# V1 - Current version (Join between Social Media data and eo2 data)
-
 ## Data Preparation / Pipeline
 
 ### Social Media data
@@ -59,7 +57,8 @@ eo2data <- eo2data[!is.na(eo2data$orgname),]
 
 ### EPR data
 
-#### balbla
+#### Reading in the EPR data, deleting duplicates and renaming variables related
+#### power, conflict and ethnicity
 ```{r}
 eprdata<- read_csv("data/epro_t.csv")
 eprdata <- eprdata[!duplicated(eprdata), ]
@@ -73,6 +72,10 @@ eprdata <- eprdata[, c("gov_pow", "reg_autonom", "sep_irred", "org_id", "year", 
 
 
 ### Power Access & Conflict data
+
+#### Reading in the Power and Conflict data, only keeping the data points where
+#### the groupname is available, as well as selecting only a few variables
+#### for merger later.
 ```{r}
 powacc_confdata <- read_csv("data/powacc_conflict.csv")
 powacc_confdata <- powacc_confdata[!is.na(powacc_confdata$groupname),]
@@ -92,7 +95,7 @@ joined_data <- smdata %>% left_join(eo2data, by = ("index_n"="index_n"))
 ```
 
 #### ... EPR data
-blahblah
+Left join of the already joined Social Media and eo2 data with the EPR data
 ```{r}
 joined_data <- joined_data %>%
   left_join(select(eprdata, gov_pow, reg_autonom, sep_irred, groupid, year, gwid, eth_claim, org_id), by = c("year", "gwid.x"="gwid", "groupid", "org_id_from_coll"="org_id"))
@@ -100,7 +103,7 @@ joined_data <- joined_data %>%
 
 
 #### ... Power Access & Conflict data
-blah blah
+Left join of the already joined Social Media, eo2, and EPR data with the conflict data
 ```{r}
 joined_data <- joined_data %>% left_join(select(powacc_confdata, "warhist", "peaceyears", "status_excl", "onset_ko_flag", "onset_do_flag", "incidence_flag", "year", "gwgroupid", "groupname"), by = c("gwgroupid", "year"))
 ```
@@ -109,118 +112,32 @@ joined_data <- joined_data %>% left_join(select(powacc_confdata, "warhist", "pea
 
 ### Grouping data
 
-#### Group data to generate post count, global posts and prop_global
+#### Grouped data on organisational level to generate post count, global posts and prop_global 
 ```{r}
 joined_data <- joined_data %>% group_by(year, org_id_from_coll) %>%
   mutate(
-    post_count = n(),                              # Count of posts per group
-    global_posts = sum(global == 1),               # Count of global posts per group
-    prop_global = global_posts / post_count        # Proportion of global posts per group
+    post_count = n(),                              # Count of posts per organisation
+    global_posts = sum(global == 1),               # Count of global posts per organisation
+    prop_global = global_posts / post_count        # Proportion of global posts per organisation
+  ) %>%
+  ungroup()
+```
+
+#### nochmal auf group level ===> TO DO!
+```{r}
+joined_data_group <- joined_data %>% group_by(year, org_id_from_coll) %>%
+  mutate(
+    post_count = n(),                              # Count of posts per organisation
+    global_posts = sum(global == 1),               # Count of global posts per organisation
+    prop_global = global_posts / post_count        # Proportion of global posts per organisation
   ) %>%
   ungroup()
 ```
 
 
-
-
 ### Saving joined data as CSV
 ```{r}
 write_csv(x = joined_data, "data/data/joined_data.csv")
-```
-
-
-
-# V2 - Previous elaborate version
-## Data Preparation / Pipeline
-
-### Read in data, create necessary variables, delete NAs and duplicates
-#### smdata - Social Media data
-```{r}
-smdata <- read_csv("data/example_data.csv")
-smdata$year <- as.numeric(substr(smdata$time, 7, 10))
-smdata <- smdata %>% filter_at(vars(year, epr_groupid, country_gwid, accountname), all_vars(!is.na(.)))
-smdata <- smdata %>% filter(!duplicated(select(., index_n)))
-```
-
-
-#### eprdata - EPR data: Read in data, delete NAs and duplicates
-```{r}
-eprdata<- read_csv("data/epro_t.csv")
-eprdata <- eprdata[!is.na(eprdata$orgname), ]
-eprdata <- eprdata[!duplicated(eprdata), ]
-# rename complicated variables
-eprdata <- eprdata %>%
-  rename(gov_pow = `Governmental power`) %>%
-  rename(reg_autonom = `Regional autonomy`) %>%
-  rename(sep_irred = `Separatism/irredentism`) %>%
-  rename(eth_claim = `Ethnic claim`)
-# only keep needed variables
-eprdata <- eprdata[, c("gov_pow", "reg_autonom", "sep_irred", "org_id", "year", "gwid", "groupid", "eth_claim")]
-```
-
-
-#### eo2data - EO2 data: Read in data, delete NAs and duplicates
-```{r}
-eo2data <- read_csv("data/data_sample_eo2_tw_fb_all_original_data.csv.gz")
-eo2data <- eo2data[!is.na(eo2data$orgname),]
-eo2data <- eo2data[, c("org_id_from_coll", "orgname", "accountname", "gwid.x", "groupid", "year")]
-
-```
-
-
-#### Power access & conflict data: Read in data, delete NAs and duplicates
-```{r}
-powacc_confdata <- read_csv("data/powacc_conflict.csv")
-powacc_confdata <- powacc_confdata[!is.na(powacc_confdata$groupname),]
-powacc_confdata <- powacc_confdata[, c("warhist", "peaceyears", "status_excl", "onset_ko_flag", "onset_do_flag", "incidence_flag", "year", "gwgroupid", "groupname")]
-```
-
-
-#### Grouping for smdata for posts & global posts -> is deactived in the meantime
-```{r eval=FALSE, echo=FALSE}
-smdata <- smdata %>%
-  group_by(epr_groupid, year, country_gwid, accountname) %>%
-  summarise(
-    post_count = n(),
-    global_posts = sum(global ==1),
-    .groups = "keep"
-  ) %>%
-  arrange(epr_groupid, year, country_gwid, accountname)
-```
-
-
-
-#### Join Social Media data with EO2 data & remove duplicates
-
-```{r}
-joined_data <- smdata %>%
-  left_join(select(eo2data, org_id_from_coll, orgname, accountname, gwid.x, year, index_n), by = c("index_n"="index_n"))
-# simpler join ohne select
-#joined_data <- joined_data[!duplicated(joined_data),]
-```
-
-
-#### Join previously joined_data with eprdata
-```{r}
-joined_data <- joined_data %>%
-  left_join(select(eprdata, "gov_pow", "reg_autonom", "sep_irred", "org_id", "year", "gwid", "groupid", "eth_claim"), by = c("org_id_from_coll"="org_id","year", "country_gwid"="gwid", "epr_groupid"="groupid"))
-# org_id_from_coll -> möglicherweise nicht richtig nur über gruppenebene mergen!!!
-```
-
-#### Join previously joined_data with Power Access and Conflict Data
-```{r}
-joined_data <- joined_data %>% left_join(select(powacc_confdata, "warhist", "peaceyears", "status_excl", "onset_ko_flag", "onset_do_flag", "incidence_flag", "year", "gwgroupid", "groupname"), by = c("epr_groupid"="gwgroupid", "year"))
-```
-
-#### Proportion of global posts in total posts
-``` {r}
-joined_data$prop_global <- joined_data$global_posts / joined_data$post_count
-
-```
-
-#### Writing joined_data as csv
-```{r}
-write_csv(x = joined_data, "data/joined_data.csv")
 ```
 
 
